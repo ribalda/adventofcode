@@ -35,14 +35,14 @@ for i in range(min_v0_x, max_v0_x + 1):
     cros_x0 = calc_time(x[0], i)
     if cros_x0 == None:
         continue
-    if cros_x0[0] > 0 and cros_x0[0] > 0:
-        valid_t |= set(range(math.ceil(cros_x0[0]), math.floor(cros_x0[1]) + 1))
-        continue
     cros_x1 = calc_time(x[1], i)
-    if cros_x1 != None:
-        valid_t |= set(range(math.ceil(cros_x0[0]), math.floor(cros_x1[0]) + 1))
-        continue
-
+    if cros_x1 == None:
+        times = range(
+            math.ceil(cros_x0[0]), math.ceil(cros_x0[0]) + 1000
+        )  # +1000 is a hack
+    else:
+        times = range(math.ceil(cros_x0[0]), math.floor(cros_x1[0]) + 1)
+    valid_t |= set(times)
 valid_v = set()
 for t in valid_t:
     valid_v |= set(
