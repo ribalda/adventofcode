@@ -32,6 +32,7 @@ min_v0_x = get_min_v0(x[0])
 
 valid_speeds = set()
 
+valid_ys_cache = dict()
 for i in range(min_v0_x, max_v0_x + 1):
     cros_x0 = calc_time(x[0], i)
     if cros_x0 == None:
@@ -40,14 +41,17 @@ for i in range(min_v0_x, max_v0_x + 1):
     if cros_x1 == None:
         times = range(
             math.ceil(cros_x0[0]), math.ceil(cros_x0[0]) + 1000
-        )  # +1000 is a hack
+        )  # +1000 is a hack, I need fo find a ceil for this
     else:
         times = range(math.ceil(cros_x0[0]), math.floor(cros_x1[0]) + 1)
     for t in times:
-        valid_ys = range(
-            math.ceil(calc_speed(t, y[0])), math.floor(calc_speed(t, y[1])) + 1
-        )
-        for j in valid_ys:
+        if t not in valid_ys_cache:
+            valid_ys_cache[t] = list(
+                range(
+                    math.ceil(calc_speed(t, y[0])), math.floor(calc_speed(t, y[1])) + 1
+                )
+            )
+        for j in valid_ys_cache[t]:
             valid_speeds.add((i, j))
 
 print(sorted(list(valid_speeds)))
