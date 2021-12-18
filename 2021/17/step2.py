@@ -22,6 +22,11 @@ def calc_time(s, v):
     return sorted([sol1 / 2, sol2 / 2])
 
 
+def calc_max_t(v, k):
+    sol = math.sqrt(-8 * k + 4 * v * v + 4 * v + 1) + 2 * v + 1
+    return sol / 2
+
+
 line = sys.stdin.readline().strip()
 _, _, x, y = line.split()
 x = list(map(int, x[2:-1].split("..")))
@@ -29,6 +34,7 @@ y = list(map(int, y[2:].split("..")))
 
 max_v0_x = x[1]
 min_v0_x = get_min_v0(x[0])
+max_time = math.floor(calc_max_t(-y[0], y[0]))
 
 valid_speeds = set()
 
@@ -39,9 +45,7 @@ for i in range(min_v0_x, max_v0_x + 1):
         continue
     cros_x1 = calc_time(x[1], i)
     if cros_x1 == None:
-        times = range(
-            math.ceil(cros_x0[0]), math.ceil(cros_x0[0]) + 1000
-        )  # +1000 is a hack, I need fo find a ceil for this
+        times = range(math.ceil(cros_x0[0]), max_time + 1)
     else:
         times = range(math.ceil(cros_x0[0]), math.floor(cros_x1[0]) + 1)
     for t in times:
