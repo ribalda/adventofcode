@@ -1,4 +1,5 @@
 import sys
+import heapq
 
 
 def dice_values():
@@ -12,19 +13,22 @@ def dice_values():
                 d[v] += 1
     out = list()
     for v in d:
-        out.append((v,d[v]))
+        out.append((v, d[v]))
 
     return out
 
 
 def simulate(p0, p1):
     universes = dict()
-    s0 = pos[0], pos[1], 0, 0, 0
-    universes[s0] = 1
+    u0 = pos[0], pos[1], 0, 0, 0
+    heap = []
+    heapq.heappush(heap, (0, u0))
+    universes[u0] = 1
     wins = [0, 0]
     dice_vals = dice_values()
     while universes:
-        u, n = universes.popitem()
+        _, u = heapq.heappop(heap)
+        n = universes.pop(u)
         for v, k in dice_vals:
             p0, p1, v0, v1, w = u
             if w == 0:
@@ -44,6 +48,7 @@ def simulate(p0, p1):
             u2 = p0, p1, v0, v1, w
             if u2 not in universes:
                 universes[u2] = 0
+                heapq.heappush(heap, (v0 + v1, u2))
             universes[u2] += k * n
     return wins
 
