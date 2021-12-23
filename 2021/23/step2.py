@@ -2,34 +2,33 @@ import sys
 import heapq
 
 N = 4
+if len(sys.argv) >= 2:
+    N = int(sys.argv[1])
 
 
 def int2letter(v):
     return ["A", "B", "C", "D"][v]
 
 
-def get_dests(v):
-    if v == " " or v == ".":
-        return None
-    if v == "A":
-        return set((11, 12, 13, 14))
-    if v == "B":
-        return set((11 + N, 12 + N, 13 + N, 14 + N))
-    if v == "C":
-        return set((11 + 2 * N, 12 + 2 * N, 13 + 2 * N, 14 + 2 * N))
-    if v == "D":
-        return set((11 + 3 * N, 12 + 3 * N, 13 + 3 * N, 14 + 3 * N))
+def get_dests():
+    d = dict()
+    d[" "] = None
+    d["."] = None
+    idx = 11
+    for i in "A", "B", "C", "D":
+        o = []
+        for _ in range(N):
+            o.append(idx)
+            idx += 1
+        d[i] = set(o)
+    return d
+
+
+DESTS = get_dests()
 
 
 def trip_val(l):
-    if l == "A":
-        return 1
-    if l == "B":
-        return 10
-    if l == "C":
-        return 100
-    if l == "D":
-        return 1000
+    return {"A": 1, "B": 10, "C": 100, "D": 1000}[l]
 
 
 def all_clean(mapa, i, j):
@@ -47,6 +46,17 @@ def to_corridor(n):
     return n
 
 
+def get_corridors():
+    out = dict()
+    for i in range(4):
+        n = 11 + i * N
+        out[n] = to_corridor(n)
+    return out
+
+
+CORRIDOR = get_corridors()
+
+
 def trip_len(mapa, i, d):
     n = 0
 
@@ -55,7 +65,7 @@ def trip_len(mapa, i, d):
         if not all_clean(mapa, first, d):
             return -1
         n += d - first + 1
-        d = to_corridor(first)
+        d = CORRIDOR[first]
 
     if i >= 11:
         first = i - (i - 11) % N
@@ -63,7 +73,7 @@ def trip_len(mapa, i, d):
             if not (all_clean(mapa, first, i - 1)):
                 return -1
         n += i - first + 1
-        i = to_corridor(first)
+        i = CORRIDOR[first]
 
     if d > i:
         for j in range(i + 1, d + 1, 1):
@@ -89,6 +99,7 @@ def get_open_dest(mapa):
                     break
             else:
                 out.add(11 + i * N + j)
+                break
     return out
 
 
@@ -103,7 +114,7 @@ def get_dest_state(s):
     v, mapa = s
     open_dests = get_open_dest(mapa)
     for i in range(len(mapa)):
-        vdests = get_dests(mapa[i])
+        vdests = DESTS[mapa[i]]
         if vdests == None or (i in vdests):
             continue
         vdests = open_dests & vdests
@@ -149,12 +160,22 @@ def get_valid_states(s):
     return out
 
 
+def get_end(n):
+    out = ""
+    for i in "A", "B", "C", "D":
+        for _ in range(n):
+            out += i
+    return out
+
+
 def debug(mapa):
+    print(mapa[:11])
     out = [" "] * 11
     for l in range(N):
         for i in range(4):
             out[2 + i * 2] = mapa[11 + N * i + l]
         print("".join(out))
+
 
 lines = sys.stdin.readlines()
 mapa = ".. . . . .."
@@ -168,11 +189,13 @@ todo = []
 heapq.heappush(todo, (v, mapa))
 visited = dict()
 state_from = dict()
+end = get_end(N)
+debug(mapa)
 
 while todo:
     s = heapq.heappop(todo)
     v, mapa = s
-    if mapa[-16:] == "AAAABBBBCCCCDDDD":
+    if mapa[-len(end) :] == end:
         print(v)
         break
 
@@ -189,16 +212,14 @@ while todo:
             heapq.heappush(todo, t)
             visited[t[1]] = t[0]
             state_from[t[1]] = mapa
-
-sys.exit(0)
 while mapa != orig:
     print(" ")
-    print(visited[mapa], " " * 10, mapa)
+    print(visited[mapa])
     debug(mapa)
     mapa = state_from[mapa]
 
 print(" ")
-print(0, mapa)
+print(0)
 debug(mapa)
 
 print(v)
