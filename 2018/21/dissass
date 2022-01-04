@@ -1,0 +1,22 @@
+0: e = 0x7b
+*1: e = e & 0x1c8
+2: e = e == 0x48
+if e != 0x48
+   goto 1
+start:
+5: e = 0x0
+*6: d = e | 0x10000
+7: e = 0xc154d6
+*8: noop
+9: e = (e + (d & 0xff)) * 0x1016b
+12: e = e & 0xffffff
+if 0x100 > d:
+  if e == a:
+    END
+  goto 6
+17: c = 0x0
+*18: if ((c +1) * 0x100) > d:
+  d = c
+  goto 8
+24: c = c + 0x1
+25: goto 18
