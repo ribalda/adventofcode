@@ -125,17 +125,15 @@ def parse_prog(line):
     d["outp"] = []
     return d
 
+def add_order(d, order):
+    order = list(order)
+    d["inp"] += list(map(ord, order))
+    d["outp"] += list(map(ord, order))
+    return d
 
-def tostr(v):
-    if v < 256:
-        return chr(v)
-    return ""
 
-
-def run_simu(d, program):
-    d = copy.deepcopy(d)
-    program = list(program)
-    d["inp"] = list(map(ord, program))
+def run_simu(d):
+    #d = copy.deepcopy(d)
     d["pc"], d["rel"], ret = execute_prog(
         d["p"], d["pc"], d["rel"], d["inp"], d["outp"])
     return d, ret
@@ -181,24 +179,21 @@ pos = 0
 items = tuple()
 
 orders = dict()
-orders[(pos, items)] = ""
+orders[(pos, items)] = d
 todo = [(pos, items)]
 
 while todo:
     t = todo.pop(0)
-    print(t)
     pos, items = t
-    order = orders[t]
-    d2, ret = run_simu(d, order)
-    output = "".join(list(map(chr, d2["outp"])))
+    d = orders[t]
+    d, ret = run_simu(d)
+    output = "".join(list(map(chr, d["outp"])))
     if pos.real > 8:
-        print(order)
         print(output)
         break
     if ret == True:
         print("Ended")
         print(t)
-        print(order)
         print(output)
         sys.exit(0)
         continue
@@ -206,7 +201,6 @@ while todo:
     if d_n == None:
         print("Error")
         print(t)
-        print(order)
         print(output)
         continue
     doors, new_items = d_n
@@ -225,33 +219,20 @@ while todo:
             continue
         items2 = list(items)
         items2.append(i)
-        # if len(items2) > 1:
-        #    break
         items2 = tuple(sorted(list(items2)))
         pos2 = pos
         if (pos2, items2) in orders:
             continue
-        order2 = order + f"take {i}\n"
-        orders[(pos2, items2)] = order2
+        d2 = copy.deepcopy(d)
+        d2 = add_order(d2, f"take {i}\n")
+        orders[(pos2, items2)] = d2
         todo.append((pos2, items2))
     for door in doors:
         items2 = items
         pos2 = pos + {"north": 1, "south": -1, "west": -1j, "east": +1j}[door]
         if (pos2, items2) in orders:
             continue
-        order2 = order + f"{door}\n"
-        orders[(pos2, items2)] = order2
+        d2 = copy.deepcopy(d)
+        d2 = add_order(d2, f"{door}\n")
+        orders[(pos2, items2)] = d2
         todo.append((pos2, items2))
-    for i, ite in enumerate(items):
-        items2 = items[0:i] + items[i+1:]
-        pos2 = pos
-        if (pos2, items2) in orders:
-            continue
-        order2 = order + f"drop {ite}\n"
-        orders[(pos2, items2)] = order2
-        todo.append((pos2, items2))
-
-
-#out = run_simu(d, orders)
-# print(parse_output(out))
-# sys.exit(0)
