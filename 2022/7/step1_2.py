@@ -1,4 +1,5 @@
 import sys
+from pprint import pprint
 
 
 def make_dir(cwd, name):
@@ -25,15 +26,14 @@ def change_dir(cwd, d):
     return cwd[d]
 
 
-def calc_small_dir_sum(d, sizes):
-    global small_dir_sum
+def calc_dir_sizes(d, sizes):
     out = 0
 
     for f in d:
         if f == "..":
             continue
         if type(d[f]) is dict:
-            out += calc_small_dir_sum(d[f], sizes)
+            out += calc_dir_sizes(d[f], sizes)
         else:
             out += d[f]
 
@@ -45,9 +45,8 @@ def calc_small_dir_sum(d, sizes):
 commands = sys.stdin.read().split("$ ")[2:]
 
 root = dict()
+
 cwd = root
-
-
 for c in commands:
     lines = c.splitlines()
     command = lines[0]
@@ -60,11 +59,13 @@ for c in commands:
         print("error" + str(lines))
 
 sizes = []
-calc_small_dir_sum(root, sizes)
+calc_dir_sizes(root, sizes)
 sizes = sorted(sizes)
+
+small_sizes = filter(lambda x: x < 100000, sizes)
+print("Step 1:", sum(small_sizes))
 
 free_size = 70000000 - sizes[-1]
 remove_size = 30000000 - free_size
-
 sizes = filter(lambda x: x > remove_size, sizes)
-print(sorted(sizes)[0])
+print("Step 2:", sorted(sizes)[0])
