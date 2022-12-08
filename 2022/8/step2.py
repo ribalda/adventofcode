@@ -2,10 +2,9 @@ import sys
 
 
 def in_forest(forest, p1):
-    if p1[0] < 0 or p1[0] >= len(forest):
-        return False
-    if p1[1] < 0 or p1[1] >= len(forest):
-        return False
+    for i in range(2):
+        if p1[i] < 0 or p1[i] >= len(forest):
+            return False
     return True
 
 
