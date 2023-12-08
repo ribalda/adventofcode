@@ -25,30 +25,8 @@ def offset_cyle(inst, pos):
     return offset, cycle
 
 
-def merge_oc_simple(ocs):
-    a = ocs[0][0]
-    b = ocs[1][0]
-    mcm = (a * b) // gcd(a, b)
-    return mcm, mcm
-
-
-def merge_oc(ocs):
-    if ocs[0][0] == ocs[0][1] and ocs[1][0] == ocs[1][1]:
-        return merge_oc_simple(ocs)
-    offset_out = None
-    visited = dict()
-    while True:
-        for idx, (offset, cycle) in enumerate(ocs):
-            v = visited.pop(offset, 0)
-            v += 1
-            visited[offset] = v
-            if v == len(offset_cycles):
-                if offset_out == None:
-                    offset_out = offset
-                else:
-                    return offset_out, offset - offset_out
-            offset += cycle
-            ocs[idx] = (offset, cycle)
+def lcd(a,b):
+    return (a * b) // gcd(a, b)
 
 
 inst, paths = sys.stdin.read().split("\n\n")
@@ -59,17 +37,12 @@ road = dict()
 for p in paths:
     road[p[0]] = p[1]
 
-offset_cycles = dict()
+out = 1
 for r in road:
     if r[-1] == "A":
-        offset_cycles[r] = offset_cyle(inst, r)
-
-visited = dict()
-
-offset_cycles = list(offset_cycles.values())
-merged = offset_cycles[0]
-
-for o_c in offset_cycles[1:]:
-    merged = merge_oc([merged, o_c])
-
-print(merged[0])
+        offset, cycle = offset_cyle(inst, r)
+        if offset != cycle or (offset % len(inst)) !=0:
+            print("Can't solve!")
+        out = lcd(offset,out)
+        
+print(out)
