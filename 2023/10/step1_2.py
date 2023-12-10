@@ -43,77 +43,32 @@ def get_loop(mapa, start):
     return visited
 
 
-def n_cross(mapa, loop, p0):
+def n_inners(mapa, loop):
     out = 0
-    last_half = None
-    pos = complex(p0.real, 0)
-    while pos != p0:
-        if pos not in loop:
-            pos += 1j
-            continue
-        val = mapa.get(pos)
-        pos += 1j
-        if val == "-":
-            continue
-        if val == "|":
-            out += 1
-            continue
-        if last_half == None:
-            last_half = val
-            continue
-        if (last_half == "L" and val == "7") or (last_half == "F" and val == "J"):
-            out += 1
+    loop_lines = sorted([x.real for x in loop])
+    loop_cols = sorted([x.imag for x in loop])
+    for line in range(int(loop_lines[-1])):
+        cross = 0
         last_half = None
+        for col in range(int(loop_cols[-1])):
+            pos = complex(line, col)
+            if pos not in loop or pos not in mapa:
+                if (cross % 2) == 1:
+                    out += 1
+                continue
+            val = mapa[pos]
+            if val == "-":
+                continue
+            if val == "|":
+                cross += 1
+                continue
+            if last_half == None:
+                last_half = val
+                continue
+            if (last_half == "L" and val == "7") or (last_half == "F" and val == "J"):
+                cross += 1
+            last_half = None
     return out
-
-
-def paint(mapa, visited, loop, pos):
-    if pos in visited or pos in loop:
-        return set()
-
-    nextpos = [pos]
-    inside = set()
-
-    mapa_lines = sorted([x.real for x in mapa])
-    mapa_cols = sorted([x.imag for x in mapa])
-
-    while nextpos:
-        pos = nextpos.pop()
-        if pos in inside:
-            continue
-        if pos in loop:
-            continue
-        if pos in visited:
-            return set()
-        visited.add(pos)
-        if (
-            pos.real < mapa_lines[0]
-            or pos.real > mapa_lines[-1]
-            or pos.imag < mapa_cols[0]
-            or pos.imag > mapa_cols[-1]
-        ):
-            return set()
-        inside.add(pos)
-        for p in (complex(0, 1), complex(0, -1), complex(1, 0), complex(-1, 0)):
-            nextpos.append(pos + p)
-
-    if len(inside) == 0:
-        return set()
-
-    # Is it realy inside?
-    for i in inside:
-        if (n_cross(mapa, loop, i) % 2) == 0:
-            return set()
-        return inside
-
-
-def get_inners(mapa, loop):
-    visited = set()
-    inside = set()
-    for _, l in enumerate(loop):
-        for p in (complex(0, 1), complex(0, -1), complex(1, 0), complex(-1, 0)):
-            inside |= paint(mapa, visited, loop, l + p)
-    return inside
 
 
 mapa = dict()
@@ -130,4 +85,4 @@ for x, line in enumerate(sys.stdin.readlines()):
 loop = get_loop(mapa, start)
 
 print("Step1:", max(loop.values()))
-print("Step2:", len(get_inners(mapa, set(loop.keys()))))
+print("Step2:", n_inners(mapa, set(loop.keys())))
