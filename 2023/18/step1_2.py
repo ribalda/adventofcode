@@ -1,5 +1,4 @@
 import sys
-import math
 
 
 def letter2dir(letter):
@@ -22,10 +21,10 @@ def notcolor_decode(line):
     line = line.strip()
     notcolor = line.split()[2]
     dir = {
-        "0": complex(0, 1),
-        "2": complex(0, -1),
-        "3": complex(-1, 0),
-        "1": complex(1, 0),
+        "0": letter2dir("R"),
+        "1": letter2dir("D"),
+        "2": letter2dir("L"),
+        "3": letter2dir("U"),
     }[notcolor[-2:-1]]
     length = int(notcolor[2:-2], 16)
     return dir, length
@@ -33,28 +32,27 @@ def notcolor_decode(line):
 
 def calc_area(vertex):
     out = 0
-    for idx, v in enumerate(vertex):
-        step = vertex[(idx + 1) % len(vertex)].real + v.real
-        step *= vertex[(idx + 1) % len(vertex)].imag - v.imag
-        out += step
+    for idx, v in enumerate(vertex[:-1]):
+        out += v.real * vertex[idx + 1].imag
+        out -= v.imag * vertex[idx + 1].real
     out /= 2
-    return abs(int(out))
+    return int(abs(out))
 
 
 def calc_area_dirlen(dir_lens):
-    pos = complex(0, 0)
+    start = complex(0, 0)
     total_len = 0
-    vertex = [pos]
-    extra_area = 1
+    vertex = [start]
+    extra_area = 0
+    pos = start
     for dir, length in dir_lens:
-        length = int(length)
-        if dir in (complex(0,1), complex(1,0)):
-            extra_area += length
+        extra_area += length
         pos += length * dir
         total_len += length
-        pos_in = pos
-        vertex.append(pos_in)
-    return calc_area(vertex) + extra_area
+        vertex.append(pos)
+    if pos != start:
+        vertex.append(start)
+    return calc_area(vertex) + int(extra_area / 2) + 1
 
 
 lines = sys.stdin.readlines()
