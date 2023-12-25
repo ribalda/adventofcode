@@ -45,5 +45,6 @@ while todo:
     visited.add(t)
 
 
-print("Part 1:",len(visited)*(len(links)-len((visited))))
-print("Part 1:",len(visited), len(links))
+a = len(visited)
+b = len(links) - len(visited)
+print("Part 1:",a, b, a*b)
