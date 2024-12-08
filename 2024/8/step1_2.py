@@ -1,25 +1,17 @@
 import sys
 
 
-def calculate_pos(world, antenna):
-    out = 0
-    for a in antenna:
-        emiters = antenna[a]
-        for i, a in enumerate(emiters):
-            for b in emiters[i + 1 :]:
-                for p in a + (a - b), b + (b - a):
-                    if p not in world:
-                        continue
-
-                    if world[p] == "#":
-                        continue
-                    world[p] = "#"
-                    out += 1
-
-    return out
+def calculate_new_emiters1(world, p, dist):
+    p += dist
+    if p not in world:
+        return 0
+    if world[p] == "#":
+        return 0
+    world[p] = "#"
+    return 1
 
 
-def calculate_emiters(world, p, dist):
+def calculate_new_emiters2(world, p, dist):
     out = 0
     while p in world:
         if world[p] == "#":
@@ -32,14 +24,15 @@ def calculate_emiters(world, p, dist):
     return out
 
 
-def calculate_pos2(world, antenna):
+def calculate_emiters(world, antenna, func):
+    world = world.copy()
     out = 0
     for a in antenna:
         emiters = antenna[a]
         for i, a in enumerate(emiters):
             for b in emiters[i + 1 :]:
-                out += calculate_emiters(world, a, a - b)
-                out += calculate_emiters(world, b, b - a)
+                out += func(world, a, a - b)
+                out += func(world, b, b - a)
 
     return out
 
@@ -57,7 +50,7 @@ for l, line in enumerate(sys.stdin.readlines()):
             antenna[val] = []
         antenna[val].append(pos)
 
-out = calculate_pos(world.copy(), antenna)
+out = calculate_emiters(world, antenna, calculate_new_emiters1)
 print("Step 1:", out)
-out = calculate_pos2(world.copy(), antenna)
+out = calculate_emiters(world, antenna, calculate_new_emiters2)
 print("Step 2:", out)
