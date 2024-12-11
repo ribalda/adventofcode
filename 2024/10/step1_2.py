@@ -2,7 +2,7 @@ import sys
 from collections import deque
 
 
-def calc_dests(world, start_pos):
+def calc_dests(world, start_pos, unique_trips):
     n_dest = 0
     todo = deque([start_pos])
     visited = set(todo)
@@ -17,13 +17,21 @@ def calc_dests(world, start_pos):
             new_val = world[new_pos]
             if new_val != world[pos] + 1:
                 continue
-            visited.add(new_pos)
+            if unique_trips:
+                visited.add(new_pos)
 
             if new_val == 9:
                 n_dest += 1
                 continue
             todo.appendleft(new_pos)
     return n_dest
+
+
+def calc_routes(world, startpos, unique_trips):
+    out = 0
+    for p in startpos:
+        out += calc_dests(world, p, unique_trips)
+    return out
 
 
 world = dict()
@@ -36,8 +44,5 @@ for x, line in enumerate(sys.stdin.readlines()):
         if val == 0:
             startpos.add(pos)
 
-out = 0
-for p in startpos:
-    out += calc_dests(world, p)
-
-print("Step 1:", out)
+print("Step 1:", calc_routes(world, startpos, True))
+print("Step 2:", calc_routes(world, startpos, False))
