@@ -1,10 +1,29 @@
 import sys
+from collections import deque
 
 
 def other(world, pos):
     if world[pos] == "]":
         return pos - 1j
     return pos + 1j
+
+
+def can_move(world, pos, m):
+    visited = set()
+    todo = deque([pos])
+    while todo:
+        pos = todo.pop()
+        visited.add(pos)
+        if world[pos] == ".":
+            continue
+        if world[pos] == "#":
+            return False
+        if world[pos] in ("[", "]"):
+            other_part = other(world, pos)
+            if other_part not in visited:
+                todo.append(other_part)
+        todo.append(pos + m)
+    return True
 
 
 def move(world, pos, m):
@@ -20,7 +39,7 @@ def move(world, pos, m):
                 return pos
     # move up or down:
     elif world[new_pos] in ("[", "]"):
-        if move(world.copy(), new_pos, m) == new_pos:
+        if not can_move(world, new_pos, m):
             return pos
         new_pos_other = other(world, new_pos)
         if move(world, new_pos_other, m) == new_pos_other:
