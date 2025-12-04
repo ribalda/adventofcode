@@ -7,29 +7,25 @@ def map_groups(ab):
     return range(int(a), int(b) + 1)
 
 
-def part1_invalid(num):
-    m = re.search(r"^(\d+)\1$", str(num))
+def is_invalid(num, is_part2):
+    pattern = r"^(\d+)\1$"
+    if is_part2:
+        pattern = r"^(\d+)\1+$"
+    m = re.search(pattern, str(num))
     if m:
         return True
     return False
 
 
-def part2_invalid(num):
-    m = re.search(r"^(\d+)\1{1,}$", str(num))
-    if m:
-        return True
-    return False
-
-
-def sum_invalid(r, check):
+def sum_invalid(r, is_part2):
     out = 0
     for i in r:
-        if check(i):
+        if is_invalid(i, is_part2):
             out += i
     return out
 
 
 groups = tuple(map(map_groups, sys.stdin.readline().split(",")))
 
-print("Part 1:", sum(map(lambda x: sum_invalid(x, part1_invalid), groups)))
-print("Part 2:", sum(map(lambda x: sum_invalid(x, part2_invalid), groups)))
+print("Part 1:", sum(map(lambda x: sum_invalid(x, False), groups)))
+print("Part 2:", sum(map(lambda x: sum_invalid(x, True), groups)))
