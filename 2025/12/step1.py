@@ -64,6 +64,19 @@ def valid_shape_count(world, size, shapes, shape_count):
 def part1(shapes, regions):
     out = 0
     for r in regions:
+        # Trivial fit
+        n_grid = (r[0].real // 3) * (r[0].imag // 3)
+        if sum(r[1]) <= n_grid:
+            out += 1
+            continue
+
+        # Trivial err
+        n_busy = 0
+        for i, x in enumerate(r[1]):
+            n_busy += x * len(shapes[i][0])
+        if n_busy > r[0].real * r[0].imag:
+            continue
+
         if valid_shape_count(set(), r[0], shapes, r[1]):
             out += 1
     return out
